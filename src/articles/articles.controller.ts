@@ -274,4 +274,21 @@ export class ArticlesController {
       { page, limit },
     );
   }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':slug/clap')
+  @ApiResponse({
+    type: ArticleResponseMessageDto,
+  })
+  async clapArticle(
+    @Param('slug') slug: string,
+    @Request() request,
+  ): Promise<ArticleResponseMessageDto> {
+    const user = request.user; // Extract the user from the request
+    const result = await this.articlesService.clapForArticle(slug, user);
+    return {
+      message: `You have successfully clapped for the article: ${slug}. Current clap count: ${result.counter}`,
+    };
+  }
 }

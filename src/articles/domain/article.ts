@@ -45,4 +45,6 @@ export class Article {
 
   @ApiProperty()
   updatedAt: Date;
+
+  clap_count: number;
 }
