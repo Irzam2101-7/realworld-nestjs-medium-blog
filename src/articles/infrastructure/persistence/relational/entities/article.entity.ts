@@ -19,6 +19,7 @@ import { EntityRelationalHelper } from '@src/utils/relational-entity-helper';
 import { NullableType } from '@src/utils/types/nullable.type';
 
 import { FavoriteArticleEntity } from './favorite-article.entity';
+import { ClapEntity } from '@src/articles/infrastructure/persistence/relational/entities/clap.entity';
 
 @Entity({
   name: TABLES.article,
@@ -42,6 +43,9 @@ export class ArticleEntity extends EntityRelationalHelper {
   @Column({ type: 'int' })
   author_id: number;
 
+  @Column({ name: 'clap_count', default: 0 })
+  clap_count: number;
+
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'author_id' })
   author: UserEntity;
@@ -63,6 +67,10 @@ export class ArticleEntity extends EntityRelationalHelper {
     },
   })
   tagList?: NullableType<TagEntity[]>;
+
+
+  @OneToMany(() => ClapEntity, (clap) => clap.article)
+  claps: ClapEntity[];
 
   // @custom-inject-point
   @CreateDateColumn()

@@ -32,6 +32,7 @@ import { Article } from './domain/article';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticleAbstractRepository } from './infrastructure/persistence/article.abstract.repository';
+import { ClapRelationalRepository } from '@src/articles/infrastructure/persistence/relational/repositories/clapRepository';
 
 @Injectable()
 export class ArticlesService {
@@ -41,6 +42,7 @@ export class ArticlesService {
     private readonly tagsService: TagsService,
     private readonly dbHelperRepository: DatabaseHelperRepository,
     private readonly genAiService: GenAiService,
+    private readonly clapRepository: ClapRelationalRepository,
   ) {}
 
   async create(
@@ -97,6 +99,7 @@ export class ArticlesService {
       ...clonedPayload,
       tagList: tags,
       slug: this.slugify(clonedPayload.title),
+      clap_count: 0,
     };
 
     const article = await this.articleRepository.create(articlePayload);
@@ -297,5 +300,38 @@ export class ArticlesService {
       },
       userId: user.id,
     });
+  }
+
+  async clapForArticle(articleId: string, user: User): Promise<any> {
+    // Find and validate the article based on the 'slug'
+    const article = await this.findAndValidate('slug', articleId);
+    if (!article || !user) {
+      throw new Error('Article or User not found');
+    }
+
+    const articleIdStr = String(article.id);
+    const userIdStr = String(user.id);
+
+    // Check if the user has already clapped for this article
+    const existingClap = await this.clapRepository.findClap(
+      userIdStr,
+      articleIdStr,
+    );
+
+    if (existingClap) {
+      // If a clap already exists, increment the counter
+      existingClap.counter += 1;
+      // Save the updated clap and return it
+      return this.clapRepository.update(existingClap.id, existingClap.counter);
+    } else {
+      // If no clap exists, create a new clap with a counter of 1
+      const newClap = {
+        article,
+        user,
+        counter: 1, // Initial clap count
+      };
+      // Save the new clap and return it
+      return this.clapRepository.create(newClap);
+    }
   }
 }

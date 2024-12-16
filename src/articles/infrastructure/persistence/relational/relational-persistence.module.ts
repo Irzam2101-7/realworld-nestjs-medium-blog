@@ -7,6 +7,7 @@ import { UserFollowEntity as UserFollowEntity } from '@src/users/infrastructure/
 
 import { ArticleEntity } from './entities/article.entity';
 import { ArticleRelationalRepository } from './repositories/article.repository';
+import { ClapEntity } from '@src/articles/infrastructure/persistence/relational/entities/clap.entity';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ArticleRelationalRepository } from './repositories/article.repository';
       ArticleEntity,
       ArticleFavoriteEntity,
       UserFollowEntity,
+      ClapEntity,
     ]),
   ],
   providers: [

@@ -401,4 +401,23 @@ describe('ArticlesController (e2e)', () => {
       .set('Authorization', 'Bearer ' + apiToken) // Ensure the token is set if authorization is required
       .expect(200);
   });
+
+  it('should clap for an article successfully and return updated clap count', async () => {
+    const articleSlug = articleSlugOfCreatedArticle;
+
+    // POST request to the clap endpoint
+    const response = await request(app)
+      .post(`/api/v1/articles/${articleSlug}/clap`)
+      .set('Authorization', `Bearer ${apiToken}`)
+      .expect(200);
+
+    // Validate the response message
+    expect(response.body.message).toBe(
+      `You have successfully clapped for the article: ${articleSlug}. Current clap count: 1`,
+    );
+
+    // Validate that the result contains a "counter" and it's a number greater than 0
+    expect(response.body).toHaveProperty('counter');
+    expect(response.body.counter).toBeGreaterThan(0); // Clap count should increase after clapping
+  });
 });
